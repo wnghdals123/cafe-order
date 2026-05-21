@@ -159,7 +159,8 @@ export default function App() {
 
     IMP.request_pay(
       {
-        pg: "tosspayments.iamporttest_4",
+        pg: "tosspayments",
+        channel_key: "channel-key-766362a2-6f8e-4d4e-9bc3-10119735dd6a",
         pay_method: payMethod,
         merchant_uid: `order_${num}_${Date.now()}`,
         name: orderItems.map((i) => i.name).join(", "),
