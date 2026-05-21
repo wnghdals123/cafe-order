@@ -158,7 +158,7 @@ export default function App() {
     IMP.request_pay(
       {
         pg: "tosspayments",
-        pay_method: "card",
+        pay_method: selectedPay === "kakao" ? "kakaopay" : selectedPay === "naver" ? "naverpay" : "card",
         merchant_uid: `order_${num}_${Date.now()}`,
         name: orderItems.map((i) => i.name).join(", "),
         amount: totalPrice,
