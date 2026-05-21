@@ -1,3 +1,4 @@
+import "./App.css";
 import { useState } from "react";
 import { db } from "./firebase";
 import { ref, push } from "firebase/database";
@@ -37,82 +38,7 @@ const PAY_METHODS = [
   { id: "card", name: "신용/체크카드", sub: "VISA, Mastercard, 국내카드", emoji: "💳", bg: "#e8d5be" },
 ];
 
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500&display=swap');
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  :root {
-    --cream: #fdf6ee; --brown-deep: #3d2b1f; --brown-mid: #7c5c3e; --brown-light: #b08060;
-    --warm-gold: #c8912a; --warm-bg: #f5ebe0; --card-bg: #fffdf9; --border: #e8d5be;
-    --text-dark: #2d1f10; --text-mid: #6b4c30; --text-light: #a07850; --tag-bg: #f0e0cc;
-  }
-  body { background: var(--cream); font-family: 'Noto Sans KR', sans-serif; color: var(--text-dark); }
-  .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; }
-  .header { background: var(--brown-deep); padding: 20px 20px 16px; text-align: center; position: relative; }
-  .header-logo { font-family: 'Noto Serif KR', serif; color: #f5e6c8; font-size: 22px; font-weight: 600; letter-spacing: 2px; }
-  .header-sub { color: var(--brown-light); font-size: 11px; letter-spacing: 3px; margin-top: 3px; text-transform: uppercase; }
-  .table-badge { position: absolute; top: 18px; right: 18px; background: var(--warm-gold); color: white; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px; }
-  .tabs { background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; overflow-x: auto; scrollbar-width: none; padding: 0 8px; gap: 4px; position: sticky; top: 0; z-index: 10; }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tab { flex-shrink: 0; padding: 12px 14px; font-size: 13px; color: var(--text-light); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; font-weight: 400; transition: all .2s; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Noto Sans KR', sans-serif; }
-  .tab.active { color: var(--brown-deep); border-bottom-color: var(--warm-gold); font-weight: 500; }
-  .menu-section { padding: 16px 16px 100px; }
-  .section-title { font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--text-mid); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-  .menu-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; display: flex; align-items: center; padding: 14px; gap: 14px; }
-  .menu-img { width: 72px; height: 72px; border-radius: 10px; background: var(--warm-bg); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
-  .menu-info { flex: 1; min-width: 0; }
-  .menu-name { font-size: 14px; font-weight: 500; color: var(--text-dark); margin-bottom: 3px; }
-  .menu-desc { font-size: 11px; color: var(--text-light); line-height: 1.5; margin-bottom: 6px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .menu-price { font-size: 14px; font-weight: 500; color: var(--brown-mid); }
-  .menu-tags { display: flex; gap: 4px; margin-bottom: 5px; }
-  .tag { background: var(--tag-bg); color: var(--text-mid); font-size: 10px; padding: 2px 8px; border-radius: 10px; }
-  .add-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--brown-deep); border: none; color: #f5e6c8; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; line-height: 1; }
-  .qty-ctrl { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-  .qty-ctrl span { font-size: 15px; font-weight: 500; min-width: 20px; text-align: center; }
-  .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--card-bg); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: var(--text-mid); font-family: 'Noto Sans KR', sans-serif; }
-  .cart-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: var(--brown-deep); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; z-index: 100; border: none; font-family: 'Noto Sans KR', sans-serif; }
-  .cart-count-badge { background: var(--warm-gold); color: white; font-size: 12px; font-weight: 500; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-  .cart-bar-left { display: flex; align-items: center; gap: 12px; }
-  .cart-bar-text { color: #f5e6c8; font-size: 14px; font-weight: 500; }
-  .cart-bar-price { color: #f5e6c8; font-size: 15px; font-weight: 600; }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; display: flex; align-items: flex-end; justify-content: center; }
-  .sheet { background: var(--cream); border-radius: 20px 20px 0 0; width: 100%; max-width: 430px; max-height: 85vh; overflow-y: auto; }
-  .sheet-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
-  .sheet-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); }
-  .sheet-title { font-family: 'Noto Serif KR', serif; font-size: 17px; font-weight: 600; color: var(--text-dark); }
-  .cart-item { display: flex; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border); gap: 12px; }
-  .cart-item-emoji { font-size: 24px; width: 40px; text-align: center; }
-  .cart-item-info { flex: 1; }
-  .cart-item-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
-  .cart-item-price { font-size: 12px; color: var(--text-light); }
-  .cart-total { margin: 12px 16px; background: var(--warm-bg); padding: 16px; border-radius: 12px; }
-  .cart-total-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; color: var(--text-mid); }
-  .cart-total-final { display: flex; justify-content: space-between; font-size: 16px; font-weight: 600; padding-top: 8px; border-top: 1px solid var(--border); margin-top: 6px; }
-  .order-note { padding: 0 20px 12px; }
-  .note-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; }
-  .note-input { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 13px; font-family: 'Noto Sans KR', sans-serif; background: var(--card-bg); color: var(--text-dark); resize: none; outline: none; }
-  .sheet-actions { padding: 16px 20px 30px; display: flex; gap: 10px; }
-  .btn-back { flex: 0 0 auto; padding: 14px 18px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--card-bg); color: var(--text-mid); font-size: 13px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
-  .btn-order { flex: 1; padding: 14px; border-radius: 12px; background: var(--brown-deep); border: none; color: #f5e6c8; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
-  .pay-method-title { padding: 20px 20px 10px; font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--text-dark); }
-  .pay-methods { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-  .pay-method-btn { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--card-bg); cursor: pointer; transition: all .2s; text-align: left; font-family: 'Noto Sans KR', sans-serif; width: 100%; }
-  .pay-method-btn.selected { border-color: var(--warm-gold); background: #fffbf3; }
-  .pay-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-  .pay-info strong { font-size: 13px; font-weight: 500; color: var(--text-dark); display: block; }
-  .pay-info small { font-size: 11px; color: var(--text-light); }
-  .check-mark { margin-left: auto; color: var(--warm-gold); font-size: 18px; }
-  .btn-pay { margin: 0 20px 30px; display: block; width: calc(100% - 40px); padding: 16px; border-radius: 14px; background: var(--warm-gold); border: none; color: white; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
-  .success-view { text-align: center; padding: 40px 24px 60px; }
-  .success-icon { font-size: 60px; margin-bottom: 20px; display: block; }
-  .success-title { font-family: 'Noto Serif KR', serif; font-size: 20px; margin-bottom: 8px; }
-  .success-sub { font-size: 13px; color: var(--text-light); line-height: 1.7; margin-bottom: 24px; }
-  .order-num-box { background: var(--warm-bg); border-radius: 12px; padding: 16px 32px; margin-bottom: 16px; display: inline-block; }
-  .order-num-label { font-size: 11px; color: var(--text-light); margin-bottom: 4px; }
-  .order-num-value { font-size: 28px; font-weight: 600; color: var(--warm-gold); font-family: 'Noto Serif KR', serif; }
-  .order-eta { font-size: 12px; color: var(--text-mid); background: var(--tag-bg); padding: 8px 16px; border-radius: 20px; display: inline-block; margin-bottom: 28px; }
-  .btn-new-order { padding: 12px 32px; border-radius: 12px; background: var(--brown-deep); border: none; color: #f5e6c8; font-size: 13px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
-  .empty-cart { text-align: center; padding: 30px; color: var(--text-light); font-size: 13px; }
-`;
+
 
 export default function App() {
   const [cart, setCart] = useState({});
@@ -195,7 +121,6 @@ export default function App() {
 
   return (
     <>
-      <style>{styles}</style>
       <div className="app">
 
         <div className="header">
