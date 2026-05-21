@@ -152,19 +152,40 @@ export default function App() {
       price: m.price,
     }));
 
-    await push(ref(db, "orders"), {
-      orderNum: num,
-      items: orderItems,
-      totalPrice: totalPrice,
-      note: orderNote,
-      payMethod: selectedPay,
-      status: "대기중",
-      createdAt: new Date().toLocaleString("ko-KR"),
-    });
+    const { IMP } = window;
+    IMP.init("imp08425144");
 
-    setOrderNum(num);
-    setOrderEta(eta);
-    setSheet("success");
+    const payMethod = selectedPay === "kakao" ? "kakaopay" : selectedPay === "naver" ? "naverpay" : "card";
+
+    IMP.request_pay(
+      {
+        pg: "tosspayments.iamporttest_4",
+        pay_method: payMethod,
+        merchant_uid: `order_${num}_${Date.now()}`,
+        name: orderItems.map((i) => i.name).join(", "),
+        amount: totalPrice,
+        buyer_name: "카페 손님",
+      },
+      async (rsp) => {
+        if (rsp.success) {
+          await push(ref(db, "orders"), {
+            orderNum: num,
+            items: orderItems,
+            totalPrice: totalPrice,
+            note: orderNote,
+            payMethod: selectedPay,
+            status: "대기중",
+            createdAt: new Date().toLocaleString("ko-KR"),
+            impUid: rsp.imp_uid,
+          });
+          setOrderNum(num);
+          setOrderEta(eta);
+          setSheet("success");
+        } else {
+          alert("결제에 실패했어요: " + rsp.error_msg);
+        }
+      }
+    );
   };
 
   const newOrder = () => {
