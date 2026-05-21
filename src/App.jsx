@@ -1,7 +1,7 @@
-import "./App.css";
 import { useState } from "react";
 import { db } from "./firebase";
 import { ref, push } from "firebase/database";
+import "./App.css";
 
 const MENU = [
   { id: 1, cat: "커피", name: "아메리카노", desc: "깊고 진한 에스프레소에 뜨거운 물을 더한 클래식", price: 4500, emoji: "☕", tags: ["베스트"] },
@@ -125,10 +125,10 @@ export default function App() {
 
         <div className="header">
           <div className="header-logo">☕ Warm Bean Café</div>
-          //로고
+          {/* 로고 */}
           <div className="header-sub">Order & Pay</div>
           <div className="table-badge">테이블 7</div>
-          //테이블 번호
+          {/* 테이블 번호 */}
         </div>
 
         <div className="tabs">
@@ -264,7 +264,7 @@ export default function App() {
                 <br />
                 <div className="order-eta">예상 대기 시간: 약 {orderEta}분</div>
                 <br /><br />
-                <button class="btn-new-order" onClick={newOrder}>처음으로 돌아가기</button>
+                <button className="btn-new-order" onClick={newOrder}>처음으로 돌아가기</button>
               </div>
             </div>
           </div>
