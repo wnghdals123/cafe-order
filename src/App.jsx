@@ -155,8 +155,6 @@ export default function App() {
     const { IMP } = window;
     IMP.init("imp08425144");
 
-    const payMethod = selectedPay === "kakao" ? "kakaopay" : selectedPay === "naver" ? "naverpay" : "card";
-
     IMP.request_pay(
       {
         channel_key: "channel-key-766362a2-6f8e-4d4e-9bc3-10119735dd6a",
