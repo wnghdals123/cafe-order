@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { db } from "./firebase";
+import { ref, push } from "firebase/database";
 
 const MENU = [
   { id: 1, cat: "커피", name: "아메리카노", desc: "깊고 진한 에스프레소에 뜨거운 물을 더한 클래식", price: 4500, emoji: "☕", tags: ["베스트"] },
@@ -140,9 +142,28 @@ export default function App() {
     });
   };
 
-  const doPayment = () => {
-    setOrderNum(Math.floor(1000 + Math.random() * 8999));
-    setOrderEta([5, 7, 8, 10][Math.floor(Math.random() * 4)]);
+  const doPayment = async () => {
+    const num = Math.floor(1000 + Math.random() * 8999);
+    const eta = [5, 7, 8, 10][Math.floor(Math.random() * 4)];
+
+    const orderItems = MENU.filter((m) => cart[m.id]).map((m) => ({
+      name: m.name,
+      qty: cart[m.id],
+      price: m.price,
+    }));
+
+    await push(ref(db, "orders"), {
+      orderNum: num,
+      items: orderItems,
+      totalPrice: totalPrice,
+      note: orderNote,
+      payMethod: selectedPay,
+      status: "대기중",
+      createdAt: new Date().toLocaleString("ko-KR"),
+    });
+
+    setOrderNum(num);
+    setOrderEta(eta);
     setSheet("success");
   };
 
