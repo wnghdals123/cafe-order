@@ -71,3 +71,5 @@ body { background: var(--cream); font-family: 'Noto Sans KR', sans-serif; }
 .menu-manage-btns { display: flex; gap: 6px; flex-shrink: 0; }
 .btn-edit { padding: 7px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text-mid); font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
 .btn-delete { padding: 7px 14px; border-radius: 8px; border: none; background: #fde8e8; color: var(--red); font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+.btn-soldout { padding: 7px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text-mid); font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+.btn-soldout.on { background: #fff3cd; color: #856404; border-color: #ffc107; }

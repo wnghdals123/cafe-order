@@ -45,6 +45,10 @@ export default function Admin() {
     }
   };
 
+  const toggleSoldOut = (firebaseId, current) => {
+    update(ref(db, `menus/${firebaseId}`), { soldOut: !current });
+  };
+
   const saveEditMenu = () => {
     const { firebaseId, ...data } = editMenu;
     data.price = Number(data.price);
@@ -267,6 +271,12 @@ export default function Admin() {
                     <div className="menu-manage-price">₩{Number(menu.price).toLocaleString()}</div>
                   </div>
                   <div className="menu-manage-btns">
+                    <button
+                      className={`btn-soldout${menu.soldOut ? " on" : ""}`}
+                      onClick={() => toggleSoldOut(menu.firebaseId, menu.soldOut)}
+                    >
+                      {menu.soldOut ? "품절해제" : "품절"}
+                    </button>
                     <button className="btn-edit" onClick={() => setEditMenu({ ...menu, tags: Array.isArray(menu.tags) ? menu.tags.join(", ") : "" })}>수정</button>
                     <button className="btn-delete" onClick={() => deleteMenu(menu.firebaseId)}>삭제</button>
                   </div>

@@ -72,3 +72,6 @@ body { background: var(--cream); font-family: 'Noto Sans KR', sans-serif; color:
 .order-eta { font-size: 12px; color: var(--text-mid); background: var(--tag-bg); padding: 8px 16px; border-radius: 20px; display: inline-block; margin-bottom: 28px; }
 .btn-new-order { padding: 12px 32px; border-radius: 12px; background: var(--brown-deep); border: none; color: #f5e6c8; font-size: 13px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
 .empty-cart { text-align: center; padding: 30px; color: var(--text-light); font-size: 13px; }
+.menu-card.sold-out { opacity: 0.5; }
+.soldout-tag { background: #f8d7da; color: #842029; }
+.soldout-btn { background: #ccc; cursor: not-allowed; }

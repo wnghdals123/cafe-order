@@ -156,10 +156,11 @@ export default function App() {
               <div key={cat}>
                 <div className="section-title">{cat}</div>
                 {items.map((m) => (
-                  <div className="menu-card" key={m.firebaseId}>
+                  <div className={`menu-card${m.soldOut ? " sold-out" : ""}`} key={m.firebaseId}>
                     <div className="menu-img">{m.emoji}</div>
                     <div className="menu-info">
-                      {m.tags?.length > 0 && (
+                      {m.soldOut && <div className="menu-tags"><span className="tag soldout-tag">품절</span></div>}
+                      {!m.soldOut && m.tags?.length > 0 && (
                         <div className="menu-tags">
                           {m.tags.map((t) => <span className="tag" key={t}>{t}</span>)}
                         </div>
@@ -168,7 +169,9 @@ export default function App() {
                       <div className="menu-desc">{m.desc}</div>
                       <div className="menu-price">₩{Number(m.price).toLocaleString()}</div>
                     </div>
-                    {cart[m.firebaseId] ? (
+                    {m.soldOut ? (
+                      <button className="add-btn soldout-btn" disabled>-</button>
+                    ) : cart[m.firebaseId] ? (
                       <div className="qty-ctrl">
                         <button className="qty-btn" onClick={() => changeQty(m.firebaseId, -1)}>−</button>
                         <span>{cart[m.firebaseId]}</span>
