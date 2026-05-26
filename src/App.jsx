@@ -78,13 +78,33 @@ export default function App() {
       price: m.price,
     }));
 
+    const saveOrder = async () => {
+      await push(ref(db, "orders"), {
+        orderNum: num,
+        items: orderItems,
+        totalPrice: totalPrice,
+        note: orderNote,
+        payMethod: selectedPay,
+        status: "대기중",
+        createdAt: new Date().toLocaleString("ko-KR"),
+      });
+      setOrderNum(num);
+      setOrderEta(eta);
+      setSheet("success");
+    };
+
+    if (selectedPay === "card") {
+      await saveOrder();
+      return;
+    }
+
     const { IMP } = window;
     IMP.init("imp08425144");
 
     IMP.request_pay(
       {
         pg: "tosspayments",
-        pay_method: selectedPay === "kakao" ? "kakaopay" : selectedPay === "naver" ? "naverpay" : "card",
+        pay_method: selectedPay === "kakao" ? "kakaopay" : "naverpay",
         merchant_uid: `order_${num}_${Date.now()}`,
         name: orderItems.map((i) => i.name).join(", "),
         amount: totalPrice,
