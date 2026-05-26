@@ -73,3 +73,16 @@ body { background: var(--cream); font-family: 'Noto Sans KR', sans-serif; }
 .btn-delete { padding: 7px 14px; border-radius: 8px; border: none; background: #fde8e8; color: var(--red); font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
 .btn-soldout { padding: 7px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text-mid); font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
 .btn-soldout.on { background: #fff3cd; color: #856404; border-color: #ffc107; }
+.qr-settings { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; }
+.qr-settings-title { font-size: 14px; font-weight: 500; color: var(--text-dark); margin-bottom: 12px; }
+.qr-settings-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qr-table-input { width: 70px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: 'Noto Sans KR', sans-serif; text-align: center; outline: none; background: var(--cream); color: var(--text-dark); }
+.qr-table-label { font-size: 14px; color: var(--text-mid); }
+.btn-generate-qr { padding: 9px 18px; border-radius: 10px; background: var(--brown-deep); border: none; color: #f5e6c8; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+.btn-print-qr { padding: 9px 18px; border-radius: 10px; background: var(--warm-gold); border: none; color: white; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+.qr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.qr-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px; text-align: center; }
+.qr-card img { width: 100%; max-width: 160px; height: auto; border-radius: 8px; }
+.qr-card-label { font-size: 14px; font-weight: 600; color: var(--brown-deep); margin-top: 8px; }
+.qr-card-url { font-size: 10px; color: var(--text-light); margin-top: 2px; margin-bottom: 10px; }
+.btn-download-qr { padding: 7px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text-mid); font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
