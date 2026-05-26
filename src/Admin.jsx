@@ -54,7 +54,9 @@ export default function Admin() {
   };
 
   const addMenu = () => {
-    if (!newMenu.name || !newMenu.price) return alert("이름과 가격을 입력해주세요!");
+    if (!newMenu.name && !newMenu.price) return alert("메뉴 이름, 가격을 입력해주세요!");
+    if (!newMenu.name) return alert("메뉴 이름을 입력해주세요!");
+    if (!newMenu.price) return alert("가격을 입력해주세요!");
     const data = {
       ...newMenu,
       price: Number(newMenu.price),
