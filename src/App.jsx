@@ -20,6 +20,7 @@ export default function App() {
   const [orderNote, setOrderNote] = useState("");
   const [orderNum, setOrderNum] = useState(0);
   const [orderEta, setOrderEta] = useState(0);
+  const tableNum = new URLSearchParams(window.location.search).get("table") || "1";
 
   useEffect(() => {
     const menusRef = ref(db, "menus");
@@ -77,6 +78,7 @@ export default function App() {
         payMethod: selectedPay,
         status: "대기중",
         createdAt: new Date().toLocaleString("ko-KR"),
+        tableNum: tableNum,
       });
       setOrderNum(num);
       setOrderEta(eta);
@@ -111,6 +113,7 @@ export default function App() {
             payMethod: selectedPay,
             status: "대기중",
             createdAt: new Date().toLocaleString("ko-KR"),
+            tableNum: tableNum,
             impUid: rsp.imp_uid,
           });
           setOrderNum(num);
@@ -135,7 +138,7 @@ export default function App() {
         <div className="header">
           <div className="header-logo">☕ Warm Bean Café</div>
           <div className="header-sub">Order & Pay</div>
-          <div className="table-badge">테이블 7</div>
+          <div className="table-badge">테이블 {tableNum}</div>
         </div>
 
         <div className="tabs">

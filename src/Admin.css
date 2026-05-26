@@ -88,3 +88,4 @@ body { background: var(--cream); font-family: 'Noto Sans KR', sans-serif; }
 .btn-download-qr { padding: 7px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text-mid); font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
 .sound-btn { padding: 4px 10px; border-radius: 20px; border: none; font-size: 11px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; background: var(--warm-bg); color: var(--text-mid); margin-left: 8px; }
 .sound-btn.on { background: var(--warm-gold); color: white; }
+.order-table { font-size: 13px; font-weight: 400; color: var(--warm-gold); background: var(--warm-bg); padding: 2px 10px; border-radius: 20px; margin-left: 8px; }

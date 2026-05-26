@@ -215,7 +215,7 @@ export default function Admin() {
               <div className="order-card" key={order.id}>
                 <div className="order-top">
                   <div>
-                    <div className="order-num">#{order.orderNum}</div>
+                    <div className="order-num">#{order.orderNum} <span className="order-table">테이블 {order.tableNum || "-"}</span></div>
                     <div className="order-time">{order.createdAt}</div>
                     <div className="pay-method">결제: {order.payMethod === "kakao" ? "카카오페이" : order.payMethod === "naver" ? "네이버페이" : "카드"}</div>
                   </div>
