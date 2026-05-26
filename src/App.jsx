@@ -1,36 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { db } from "./firebase";
-import { ref, push } from "firebase/database";
+import { ref, onValue, push } from "firebase/database";
 import "./App.css";
 
-const MENU = [
-  { id: 1, cat: "커피", name: "아메리카노", desc: "깊고 진한 에스프레소에 뜨거운 물을 더한 클래식", price: 4500, emoji: "☕", tags: ["베스트"] },
-  { id: 2, cat: "커피", name: "카페 라떼", desc: "부드러운 우유 거품과 진한 에스프레소의 조화", price: 5000, emoji: "🍵", tags: ["인기"] },
-  { id: 3, cat: "커피", name: "카푸치노", desc: "풍성한 우유 폼으로 따뜻하게 즐기는 이탈리안 커피", price: 5000, emoji: "☕", tags: [] },
-  { id: 4, cat: "커피", name: "바닐라 라떼", desc: "달콤한 바닐라 시럽이 어우러진 부드러운 라떼", price: 5500, emoji: "🧡", tags: ["달콤"] },
-  { id: 5, cat: "논커피", name: "고구마 라떼", desc: "달콤한 국내산 고구마로 만든 따뜻한 계절 음료", price: 5500, emoji: "🍠", tags: ["시즌"] },
-  { id: 6, cat: "논커피", name: "밀크티", desc: "실론 홍차와 진한 우유가 만난 부드러운 밀크티", price: 5000, emoji: "🫖", tags: ["인기"] },
-  { id: 7, cat: "논커피", name: "초코라떼", desc: "벨기에 다크 초콜릿으로 만든 진한 핫초코", price: 5500, emoji: "🍫", tags: [] },
-  { id: 8, cat: "베이커리", name: "크로아상", desc: "겉은 바삭, 속은 촉촉한 프레시 버터 크로아상", price: 3500, emoji: "🥐", tags: ["베스트"] },
-  { id: 9, cat: "베이커리", name: "치즈케이크", desc: "뉴욕 스타일 진한 치즈케이크, 하루 한정 제공", price: 6500, emoji: "🍰", tags: ["한정"] },
-  { id: 10, cat: "베이커리", name: "마들렌", desc: "버터향 가득한 촉촉한 프랑스식 홈메이드 마들렌", price: 3000, emoji: "🧁", tags: [] },
-  { id: 11, cat: "에이드", name: "레몬 에이드", desc: "생레몬을 그대로 짜낸 상큼한 수제 에이드", price: 5500, emoji: "🍋", tags: ["시원"] },
-  { id: 12, cat: "에이드", name: "자몽 에이드", desc: "자몽과 허니 시럽의 상큼달콤 조화", price: 5500, emoji: "🍊", tags: ["인기"] },
-];
-
-/*
-{ 
-  id: 1,            // 고유 번호 (건드리지 마세요)
-  cat: "커피",      // 카테고리 (탭 이름)
-  name: "아메리카노", // 메뉴 이름
-  desc: "설명...",  // 메뉴 설명
-  price: 4500,      // 가격 (숫자만)
-  emoji: "☕",      // 아이콘
-  tags: ["베스트"]  // 태그 (없으면 [] 로 비워두기)
-}
-*/
-
-const CATS = ["전체", ...new Set(MENU.map((m) => m.cat))];
+const CATS_ORDER = ["전체", "커피", "논커피", "베이커리", "에이드"];
 
 const PAY_METHODS = [
   { id: "kakao", name: "카카오페이", sub: "카카오 계정으로 빠른 결제", emoji: "💛", bg: "#FEE500" },
@@ -38,9 +11,8 @@ const PAY_METHODS = [
   { id: "card", name: "신용/체크카드", sub: "VISA, Mastercard, 국내카드", emoji: "💳", bg: "#e8d5be" },
 ];
 
-
-
 export default function App() {
+  const [menu, setMenu] = useState([]);
   const [cart, setCart] = useState({});
   const [activeCat, setActiveCat] = useState("전체");
   const [sheet, setSheet] = useState(null);
@@ -49,7 +21,25 @@ export default function App() {
   const [orderNum, setOrderNum] = useState(0);
   const [orderEta, setOrderEta] = useState(0);
 
-  const filteredMenu = activeCat === "전체" ? MENU : MENU.filter((m) => m.cat === activeCat);
+  useEffect(() => {
+    const menusRef = ref(db, "menus");
+    onValue(menusRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.entries(data).map(([id, val]) => ({ firebaseId: id, ...val }));
+        setMenu(list);
+      } else {
+        setMenu([]);
+      }
+    });
+  }, []);
+
+  const cats = ["전체", ...new Set(
+    CATS_ORDER.filter((c) => c !== "전체" && menu.some((m) => m.cat === c))
+      .concat(menu.map((m) => m.cat).filter((c) => !CATS_ORDER.includes(c)))
+  )];
+
+  const filteredMenu = activeCat === "전체" ? menu : menu.filter((m) => m.cat === activeCat);
   const grouped = filteredMenu.reduce((acc, m) => {
     if (!acc[m.cat]) acc[m.cat] = [];
     acc[m.cat].push(m);
@@ -57,7 +47,7 @@ export default function App() {
   }, {});
 
   const totalCount = Object.values(cart).reduce((s, v) => s + v, 0);
-  const totalPrice = MENU.filter((m) => cart[m.id]).reduce((s, m) => s + cart[m.id] * m.price, 0);
+  const totalPrice = menu.filter((m) => cart[m.firebaseId]).reduce((s, m) => s + cart[m.firebaseId] * m.price, 0);
 
   const addItem = (id) => setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }));
   const changeQty = (id, d) => {
@@ -72,9 +62,9 @@ export default function App() {
     const num = Math.floor(1000 + Math.random() * 8999);
     const eta = [5, 7, 8, 10][Math.floor(Math.random() * 4)];
 
-    const orderItems = MENU.filter((m) => cart[m.id]).map((m) => ({
+    const orderItems = menu.filter((m) => cart[m.firebaseId]).map((m) => ({
       name: m.name,
-      qty: cart[m.id],
+      qty: cart[m.firebaseId],
       price: m.price,
     }));
 
@@ -142,17 +132,14 @@ export default function App() {
   return (
     <>
       <div className="app">
-
         <div className="header">
           <div className="header-logo">☕ Warm Bean Café</div>
-          {/* 로고 */}
           <div className="header-sub">Order & Pay</div>
           <div className="table-badge">테이블 7</div>
-          {/* 테이블 번호 */}
         </div>
 
         <div className="tabs">
-          {CATS.map((c) => (
+          {cats.map((c) => (
             <button key={c} className={`tab${c === activeCat ? " active" : ""}`} onClick={() => setActiveCat(c)}>
               {c}
             </button>
@@ -160,35 +147,41 @@ export default function App() {
         </div>
 
         <div className="menu-section">
-          {Object.entries(grouped).map(([cat, items]) => (
-            <div key={cat}>
-              <div className="section-title">{cat}</div>
-              {items.map((m) => (
-                <div className="menu-card" key={m.id}>
-                  <div className="menu-img">{m.emoji}</div>
-                  <div className="menu-info">
-                    {m.tags.length > 0 && (
-                      <div className="menu-tags">
-                        {m.tags.map((t) => <span className="tag" key={t}>{t}</span>)}
-                      </div>
-                    )}
-                    <div className="menu-name">{m.name}</div>
-                    <div className="menu-desc">{m.desc}</div>
-                    <div className="menu-price">₩{m.price.toLocaleString()}</div>
-                  </div>
-                  {cart[m.id] ? (
-                    <div className="qty-ctrl">
-                      <button className="qty-btn" onClick={() => changeQty(m.id, -1)}>−</button>
-                      <span>{cart[m.id]}</span>
-                      <button className="qty-btn" onClick={() => changeQty(m.id, 1)}>+</button>
-                    </div>
-                  ) : (
-                    <button className="add-btn" onClick={() => addItem(m.id)}>+</button>
-                  )}
-                </div>
-              ))}
+          {menu.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px", color: "var(--text-light)", fontSize: "14px" }}>
+              메뉴를 불러오는 중... ☕
             </div>
-          ))}
+          ) : (
+            Object.entries(grouped).map(([cat, items]) => (
+              <div key={cat}>
+                <div className="section-title">{cat}</div>
+                {items.map((m) => (
+                  <div className="menu-card" key={m.firebaseId}>
+                    <div className="menu-img">{m.emoji}</div>
+                    <div className="menu-info">
+                      {m.tags?.length > 0 && (
+                        <div className="menu-tags">
+                          {m.tags.map((t) => <span className="tag" key={t}>{t}</span>)}
+                        </div>
+                      )}
+                      <div className="menu-name">{m.name}</div>
+                      <div className="menu-desc">{m.desc}</div>
+                      <div className="menu-price">₩{Number(m.price).toLocaleString()}</div>
+                    </div>
+                    {cart[m.firebaseId] ? (
+                      <div className="qty-ctrl">
+                        <button className="qty-btn" onClick={() => changeQty(m.firebaseId, -1)}>−</button>
+                        <span>{cart[m.firebaseId]}</span>
+                        <button className="qty-btn" onClick={() => changeQty(m.firebaseId, 1)}>+</button>
+                      </div>
+                    ) : (
+                      <button className="add-btn" onClick={() => addItem(m.firebaseId)}>+</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))
+          )}
         </div>
 
         {totalCount > 0 && (
@@ -206,20 +199,20 @@ export default function App() {
             <div className="sheet">
               <div className="sheet-handle" />
               <div className="sheet-header"><div className="sheet-title">🛒 장바구니</div></div>
-              {MENU.filter((m) => cart[m.id]).length === 0 ? (
+              {menu.filter((m) => cart[m.firebaseId]).length === 0 ? (
                 <div className="empty-cart">장바구니가 비어있어요 ☕</div>
               ) : (
-                MENU.filter((m) => cart[m.id]).map((m) => (
-                  <div className="cart-item" key={m.id}>
+                menu.filter((m) => cart[m.firebaseId]).map((m) => (
+                  <div className="cart-item" key={m.firebaseId}>
                     <div className="cart-item-emoji">{m.emoji}</div>
                     <div className="cart-item-info">
                       <div className="cart-item-name">{m.name}</div>
-                      <div className="cart-item-price">₩{m.price.toLocaleString()} × {cart[m.id]}</div>
+                      <div className="cart-item-price">₩{Number(m.price).toLocaleString()} × {cart[m.firebaseId]}</div>
                     </div>
                     <div className="qty-ctrl">
-                      <button className="qty-btn" onClick={() => changeQty(m.id, -1)}>−</button>
-                      <span>{cart[m.id]}</span>
-                      <button className="qty-btn" onClick={() => changeQty(m.id, 1)}>+</button>
+                      <button className="qty-btn" onClick={() => changeQty(m.firebaseId, -1)}>−</button>
+                      <span>{cart[m.firebaseId]}</span>
+                      <button className="qty-btn" onClick={() => changeQty(m.firebaseId, 1)}>+</button>
                     </div>
                   </div>
                 ))
@@ -289,7 +282,6 @@ export default function App() {
             </div>
           </div>
         )}
-
       </div>
     </>
   );
