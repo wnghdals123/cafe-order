@@ -160,7 +160,12 @@ export default function App() {
                 <div className="section-title">{cat}</div>
                 {items.map((m) => (
                   <div className={`menu-card${m.soldOut ? " sold-out" : ""}`} key={m.firebaseId}>
-                    <div className="menu-img">{m.emoji}</div>
+                    <div className="menu-img">
+                      {m.image
+                        ? <img src={m.image} alt={m.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "10px" }} />
+                        : m.emoji
+                      }
+                    </div>
                     <div className="menu-info">
                       {m.soldOut && <div className="menu-tags"><span className="tag soldout-tag">품절</span></div>}
                       {!m.soldOut && m.tags?.length > 0 && (

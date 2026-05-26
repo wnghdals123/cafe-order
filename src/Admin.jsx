@@ -97,6 +97,20 @@ export default function Admin() {
     audio.play().catch((e) => console.log("미리듣기 실패:", e));
   };
 
+  const handleImageUpload = (e, firebaseId) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result;
+      update(ref(db, `menus/${firebaseId}`), { image: base64 })
+        .then(() => console.log("이미지 저장 완료"))
+        .catch((err) => console.log("이미지 저장 실패:", err));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const downloadQR = (tableNum) => {
     const link = document.createElement("a");
     link.download = `테이블${tableNum}_QR.png`;
@@ -364,7 +378,16 @@ export default function Admin() {
                 </div>
               ) : (
                 <div className="menu-manage-row">
-                  <div className="menu-manage-emoji">{menu.emoji}</div>
+                  <div className="menu-manage-emoji" style={{ position: "relative" }}>
+                    {menu.image
+                      ? <img src={menu.image} alt={menu.name} style={{ width: "48px", height: "48px", borderRadius: "10px", objectFit: "cover" }} />
+                      : menu.emoji
+                    }
+                    <label style={{ position: "absolute", bottom: "-4px", right: "-4px", background: "var(--warm-gold)", borderRadius: "50%", width: "18px", height: "18px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "10px", color: "white" }}>
+                      +
+                      <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleImageUpload(e, menu.firebaseId)} />
+                    </label>
+                  </div>
                   <div className="menu-manage-info">
                     <div className="menu-manage-name">{menu.name}
                       <span className="menu-manage-cat">{menu.cat}</span>
