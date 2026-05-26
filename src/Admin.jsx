@@ -14,6 +14,10 @@ export default function Admin() {
   const [priceError, setPriceError] = useState(false);
   const [editPriceError, setEditPriceError] = useState(false);
   const [tableCount, setTableCount] = useState(10);
+  const today = new Date().toISOString().split("T")[0];
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(today);
+  const [dateMode, setDateMode] = useState("오늘");
   const [qrImages, setQrImages] = useState({});
   const [soundEnabled, setSoundEnabled] = useState(true);
   const prevOrderCount = useRef(0);
@@ -62,6 +66,55 @@ export default function Admin() {
   const toggleSoldOut = (firebaseId, current) => {
     update(ref(db, `menus/${firebaseId}`), { soldOut: !current });
   };
+
+  const setDateRange = (mode) => {
+    const now = new Date();
+    const toStr = (d) => d.toISOString().split("T")[0];
+    setDateMode(mode);
+    if (mode === "오늘") {
+      setStartDate(toStr(now));
+      setEndDate(toStr(now));
+    } else if (mode === "어제") {
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      setStartDate(toStr(yesterday));
+      setEndDate(toStr(yesterday));
+    } else if (mode === "1주") {
+      const week = new Date(now);
+      week.setDate(now.getDate() - 7);
+      setStartDate(toStr(week));
+      setEndDate(toStr(now));
+    } else if (mode === "1개월") {
+      const month = new Date(now);
+      month.setMonth(now.getMonth() - 1);
+      setStartDate(toStr(month));
+      setEndDate(toStr(now));
+    } else if (mode === "직접입력") {
+      setDateMode("직접입력");
+    }
+  };
+
+  const filteredOrders = orders.filter((order) => {
+    if (!order.createdAt) return false;
+    const orderDate = order.createdAt.split(". ").slice(0, 3).join("-")
+      .replace(".", "").replace(/(\d{4})-(\d+)-(\d+)/, (_, y, m, d) =>
+        `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`);
+    return orderDate >= startDate && orderDate <= endDate;
+  });
+
+  const salesTotal = filteredOrders.reduce((s, o) => s + (o.totalPrice || 0), 0);
+
+  const menuSales = {};
+  filteredOrders.forEach((order) => {
+    order.items?.forEach((item) => {
+      if (!menuSales[item.name]) menuSales[item.name] = { qty: 0, total: 0 };
+      menuSales[item.name].qty += item.qty;
+      menuSales[item.name].total += item.qty * item.price;
+    });
+  });
+  const menuSalesList = Object.entries(menuSales)
+    .map(([name, val]) => ({ name, ...val }))
+    .sort((a, b) => b.total - a.total);
 
   const generateQRCodes = async () => {
     const images = {};
@@ -210,6 +263,7 @@ export default function Admin() {
         <button className={`admin-tab${activeTab === "orders" ? " active" : ""}`} onClick={() => setActiveTab("orders")}>🧾 주문 관리</button>
         <button className={`admin-tab${activeTab === "menus" ? " active" : ""}`} onClick={() => setActiveTab("menus")}>🍽️ 메뉴 관리</button>
         <button className={`admin-tab${activeTab === "qr" ? " active" : ""}`} onClick={() => setActiveTab("qr")}>📱 QR 관리</button>
+        <button className={`admin-tab${activeTab === "sales" ? " active" : ""}`} onClick={() => setActiveTab("sales")}>📊 매출 조회</button>
       </div>
 
       {/* 주문 관리 탭 */}
@@ -448,6 +502,93 @@ export default function Admin() {
               ))}
             </div>
           )}
+        </>
+      )}
+
+      {/* 매출 조회 탭 */}
+      {activeTab === "sales" && (
+        <>
+          <div className="sales-filter">
+            <div className="sales-date-row">
+              <div className="sales-date-group">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => { setStartDate(e.target.value); setDateMode("직접입력"); }}
+                  className="sales-date-input"
+                />
+                <span className="sales-date-sep">~</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => { setEndDate(e.target.value); setDateMode("직접입력"); }}
+                  className="sales-date-input"
+                />
+              </div>
+              <div className="sales-btn-group">
+                {["직접입력", "오늘", "어제", "1주", "1개월"].map((mode) => (
+                  <button
+                    key={mode}
+                    className={`sales-btn${dateMode === mode ? " active" : ""}`}
+                    onClick={() => setDateRange(mode)}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="sales-stats">
+            <div className="stat-card">
+              <div className="stat-num">₩{salesTotal.toLocaleString()}</div>
+              <div className="stat-label">총 매출</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-num">{filteredOrders.length}</div>
+              <div className="stat-label">총 주문 수</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-num">
+                ₩{filteredOrders.length > 0 ? Math.round(salesTotal / filteredOrders.length).toLocaleString() : 0}
+              </div>
+              <div className="stat-label">평균 주문금액</div>
+            </div>
+          </div>
+
+          <div className="sales-menu-card">
+            <div className="sales-menu-title">메뉴별 판매 현황</div>
+            {menuSalesList.length === 0 ? (
+              <div className="empty" style={{ padding: "30px" }}>해당 기간 매출이 없어요</div>
+            ) : (
+              menuSalesList.map((item, i) => (
+                <div className="sales-menu-row" key={item.name}>
+                  <div className="sales-menu-rank">{i + 1}</div>
+                  <div className="sales-menu-name">{item.name}</div>
+                  <div className="sales-menu-qty">{item.qty}잔</div>
+                  <div className="sales-menu-total">₩{item.total.toLocaleString()}</div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="sales-order-card">
+            <div className="sales-menu-title">주문 내역</div>
+            {filteredOrders.length === 0 ? (
+              <div className="empty" style={{ padding: "30px" }}>해당 기간 주문이 없어요</div>
+            ) : (
+              filteredOrders.map((order) => (
+                <div className="sales-order-row" key={order.id}>
+                  <div className="sales-order-left">
+                    <div className="sales-order-num">#{order.orderNum}</div>
+                    <div className="sales-order-info">테이블 {order.tableNum || "-"} · {order.createdAt}</div>
+                    <div className="sales-order-info">{order.items?.map((i) => `${i.name} ×${i.qty}`).join(", ")}</div>
+                  </div>
+                  <div className="sales-order-price">₩{order.totalPrice?.toLocaleString()}</div>
+                </div>
+              ))
+            )}
+          </div>
         </>
       )}
     </div>
