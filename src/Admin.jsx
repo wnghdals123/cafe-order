@@ -10,6 +10,8 @@ export default function Admin() {
   const [editMenu, setEditMenu] = useState(null);
   const [newMenu, setNewMenu] = useState({ cat: "커피", name: "", desc: "", price: "", emoji: "☕", tags: "" });
   const [showAddForm, setShowAddForm] = useState(false);
+  const [priceError, setPriceError] = useState(false);
+  const [editPriceError, setEditPriceError] = useState(false);
 
   useEffect(() => {
     const ordersRef = ref(db, "orders");
@@ -170,7 +172,20 @@ export default function Admin() {
                 </div>
                 <div className="form-group">
                   <label>가격 *</label>
-                  <input type="number" value={newMenu.price} onChange={(e) => setNewMenu({ ...newMenu, price: e.target.value })} placeholder="4500" />
+                  <input
+                    value={newMenu.price}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (/[^0-9]/.test(val)) {
+                        setPriceError(true);
+                      } else {
+                        setPriceError(false);
+                        setNewMenu({ ...newMenu, price: val });
+                      }
+                    }}
+                    placeholder="4500"
+                  />
+                  {priceError && <span style={{ fontSize: "11px", color: "var(--red)" }}>숫자만 입력해주세요</span>}
                 </div>
                 <div className="form-group full">
                   <label>설명</label>
@@ -211,7 +226,19 @@ export default function Admin() {
                     </div>
                     <div className="form-group">
                       <label>가격</label>
-                      <input type="number" value={editMenu.price} onChange={(e) => setEditMenu({ ...editMenu, price: e.target.value })} />
+                      <input
+                        value={editMenu.price}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (/[^0-9]/.test(val)) {
+                            setEditPriceError(true);
+                          } else {
+                            setEditPriceError(false);
+                            setEditMenu({ ...editMenu, price: val });
+                          }
+                        }}
+                      />
+                      {editPriceError && <span style={{ fontSize: "11px", color: "var(--red)" }}>숫자만 입력해주세요</span>}
                     </div>
                     <div className="form-group full">
                       <label>설명</label>
