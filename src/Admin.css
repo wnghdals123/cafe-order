@@ -14,10 +14,16 @@ body { background: var(--cream); font-family: 'Noto Sans KR', sans-serif; }
 .live-badge { background: var(--green); color: white; font-size: 11px; padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; }
 .live-dot { width: 7px; height: 7px; background: white; border-radius: 50%; animation: blink 1s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.admin-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.admin-tab { flex: 1; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text-mid); font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all .2s; }
+.admin-tab.active { background: var(--brown-deep); color: #f5e6c8; border-color: var(--brown-deep); }
+
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
 .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
 .stat-num { font-size: 28px; font-weight: 600; color: var(--warm-gold); }
 .stat-label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+
 .order-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
 .order-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .order-num { font-size: 18px; font-weight: 600; color: var(--brown-deep); }
@@ -38,3 +44,30 @@ body { background: var(--cream); font-family: 'Noto Sans KR', sans-serif; }
 .badge-done { background: #d1e7dd; color: #0a3622; }
 .empty { text-align: center; padding: 60px; color: var(--text-light); font-size: 14px; }
 .pay-method { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+
+.menu-manage-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.menu-manage-count { font-size: 14px; color: var(--text-mid); font-weight: 500; }
+.btn-add-menu { padding: 10px 18px; border-radius: 10px; background: var(--brown-deep); border: none; color: #f5e6c8; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+
+.menu-form-card { background: var(--card-bg); border: 1.5px solid var(--warm-gold); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+.menu-form-title { font-size: 14px; font-weight: 500; color: var(--text-dark); margin-bottom: 12px; }
+.menu-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label { font-size: 11px; color: var(--text-light); }
+.form-group input, .form-group select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: 'Noto Sans KR', sans-serif; background: var(--cream); color: var(--text-dark); outline: none; }
+.form-group input:focus, .form-group select:focus { border-color: var(--warm-gold); }
+.btn-save-menu { padding: 10px 20px; border-radius: 10px; background: var(--warm-gold); border: none; color: white; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+.btn-cancel-menu { padding: 10px 20px; border-radius: 10px; background: var(--card-bg); border: 1.5px solid var(--border); color: var(--text-mid); font-size: 13px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+
+.menu-manage-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; overflow: hidden; }
+.menu-manage-row { display: flex; align-items: center; padding: 14px 16px; gap: 12px; }
+.menu-manage-emoji { font-size: 28px; width: 48px; height: 48px; background: var(--warm-bg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.menu-manage-info { flex: 1; min-width: 0; }
+.menu-manage-name { font-size: 14px; font-weight: 500; color: var(--text-dark); margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
+.menu-manage-cat { font-size: 10px; background: var(--tag-bg); color: var(--text-mid); padding: 2px 8px; border-radius: 10px; }
+.menu-manage-desc { font-size: 11px; color: var(--text-light); margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.menu-manage-price { font-size: 13px; font-weight: 500; color: var(--brown-mid); }
+.menu-manage-btns { display: flex; gap: 6px; flex-shrink: 0; }
+.btn-edit { padding: 7px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text-mid); font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+.btn-delete { padding: 7px 14px; border-radius: 8px; border: none; background: #fde8e8; color: var(--red); font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
