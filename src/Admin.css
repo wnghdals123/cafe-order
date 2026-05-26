@@ -86,3 +86,5 @@ body { background: var(--cream); font-family: 'Noto Sans KR', sans-serif; }
 .qr-card-label { font-size: 14px; font-weight: 600; color: var(--brown-deep); margin-top: 8px; }
 .qr-card-url { font-size: 10px; color: var(--text-light); margin-top: 2px; margin-bottom: 10px; }
 .btn-download-qr { padding: 7px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text-mid); font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+.sound-btn { padding: 4px 10px; border-radius: 20px; border: none; font-size: 11px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; background: var(--warm-bg); color: var(--text-mid); margin-left: 8px; }
+.sound-btn.on { background: var(--warm-gold); color: white; }

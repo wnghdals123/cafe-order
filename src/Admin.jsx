@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { db } from "./firebase";
 import { ref, onValue, update, push, remove, set } from "firebase/database";
 import "./Admin.css";
@@ -15,6 +15,10 @@ export default function Admin() {
   const [editPriceError, setEditPriceError] = useState(false);
   const [tableCount, setTableCount] = useState(10);
   const [qrImages, setQrImages] = useState({});
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const prevOrderCount = useRef(0);
+  const [alarmSound, setAlarmSound] = useState(null);
+  const alarmInputRef = useRef(null);
 
   useEffect(() => {
     const ordersRef = ref(db, "orders");
@@ -40,6 +44,13 @@ export default function Admin() {
     });
   }, []);
 
+  useEffect(() => {
+    if (orders.length > prevOrderCount.current && prevOrderCount.current !== 0) {
+      if (soundEnabled) playAlarm();
+    }
+    prevOrderCount.current = orders.length;
+  }, [orders]);
+
   const updateStatus = (id, status) => update(ref(db, `orders/${id}`), { status });
 
   const deleteMenu = (firebaseId) => {
@@ -63,6 +74,27 @@ export default function Admin() {
       });
     }
     setQrImages(images);
+  };
+
+  const playAlarm = () => {
+    try {
+      const src = alarmSound || "/alarm.wav";
+      const audio = new Audio(src);
+      audio.volume = 1.0;
+      audio.play().catch((e) => console.log("소리 재생 실패:", e));
+    } catch (e) {
+      console.log("소리 재생 실패:", e);
+    }
+  };
+
+  const handleAlarmFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setAlarmSound(url);
+    const audio = new Audio(url);
+    audio.volume = 1.0;
+    audio.play().catch((e) => console.log("미리듣기 실패:", e));
   };
 
   const downloadQR = (tableNum) => {
@@ -138,6 +170,25 @@ export default function Admin() {
           <div className="live-dot" />
           실시간
         </div>
+        <button
+          className={`sound-btn${soundEnabled ? " on" : ""}`}
+          onClick={() => setSoundEnabled(!soundEnabled)}
+        >
+          {soundEnabled ? "🔔 알림 ON" : "🔕 알림 OFF"}
+        </button>
+        <button
+          className="sound-btn"
+          onClick={() => alarmInputRef.current.click()}
+        >
+          🎵 {alarmSound ? "알림음 변경" : "알림음 설정"}
+        </button>
+        <input
+          type="file"
+          accept="audio/*"
+          ref={alarmInputRef}
+          style={{ display: "none" }}
+          onChange={handleAlarmFile}
+        />
       </div>
 
       {/* 탭 */}
