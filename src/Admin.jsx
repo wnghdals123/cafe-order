@@ -14,6 +14,8 @@ export default function Admin() {
   const [priceError, setPriceError] = useState(false);
   const [editPriceError, setEditPriceError] = useState(false);
   const [tableCount, setTableCount] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
   const today = new Date().toISOString().split("T")[0];
   const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(today);
@@ -221,10 +223,18 @@ export default function Admin() {
     setShowAddForm(false);
   };
 
-  const waitingCount = orders.filter((o) => o.status === "대기중").length;
-  const makingCount = orders.filter((o) => o.status === "제조중").length;
-  const doneCount = orders.filter((o) => o.status === "완료").length;
-  const todayTotal = orders.reduce((s, o) => s + (o.totalPrice || 0), 0);
+  const getTodayStr = () => {
+    const now = new Date();
+    return `${now.getFullYear()}. ${now.getMonth() + 1}. ${now.getDate()}.`;
+  };
+
+  const todayOrders = orders.filter((order) =>
+    order.createdAt && order.createdAt.startsWith(getTodayStr())
+  );
+  const waitingCount = todayOrders.filter((o) => o.status === "대기중").length;
+  const makingCount = todayOrders.filter((o) => o.status === "제조중").length;
+  const doneCount = todayOrders.filter((o) => o.status === "완료").length;
+  const todayTotal = todayOrders.reduce((s, o) => s + (o.totalPrice || 0), 0);
 
   return (
     <div className="admin">
@@ -276,40 +286,71 @@ export default function Admin() {
             <div className="stat-card"><div className="stat-num">₩{todayTotal.toLocaleString()}</div><div className="stat-label">오늘 매출</div></div>
           </div>
 
-          {orders.length === 0 ? (
-            <div className="empty">아직 주문이 없어요 ☕<br />손님을 기다리는 중...</div>
+          {todayOrders.length === 0 ? (
+            <div className="empty">오늘 주문이 없어요 ☕<br />손님을 기다리는 중...</div>
           ) : (
-            orders.map((order) => (
-              <div className="order-card" key={order.id}>
-                <div className="order-top">
-                  <div>
-                    <div className="order-num">#{order.orderNum} <span className="order-table">테이블 {order.tableNum || "-"}</span></div>
-                    <div className="order-time">{order.createdAt}</div>
-                    <div className="pay-method">결제: {order.payMethod === "kakao" ? "카카오페이" : order.payMethod === "naver" ? "네이버페이" : "카드"}</div>
-                  </div>
-                  <div className={`status-badge ${order.status === "대기중" ? "badge-waiting" : order.status === "제조중" ? "badge-making" : "badge-done"}`}>
-                    {order.status}
-                  </div>
-                </div>
-                <div className="order-items">
-                  {order.items && order.items.map((item) => (
-                    <div className="order-item" key={item.name}>
-                      <span>{item.name} × {item.qty}</span>
-                      <span>₩{(item.price * item.qty).toLocaleString()}</span>
+            <>
+              {todayOrders.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((order) => (
+                <div className="order-card" key={order.id}>
+                  <div className="order-top">
+                    <div>
+                      <div className="order-num">#{order.orderNum} <span className="order-table">테이블 {order.tableNum || "-"}</span></div>
+                      <div className="order-time">{order.createdAt}</div>
+                      <div className="pay-method">결제: {order.payMethod === "kakao" ? "카카오페이" : order.payMethod === "naver" ? "네이버페이" : "카드"}</div>
                     </div>
-                  ))}
-                </div>
-                {order.note && <div className="order-note">📝 요청사항: {order.note}</div>}
-                <div className="order-bottom">
-                  <div className="order-total">합계 ₩{order.totalPrice?.toLocaleString()}</div>
-                  <div className="status-btns">
-                    <button className="btn-status btn-waiting" onClick={() => updateStatus(order.id, "대기중")}>대기중</button>
-                    <button className="btn-status btn-making" onClick={() => updateStatus(order.id, "제조중")}>제조중</button>
-                    <button className="btn-status btn-done" onClick={() => updateStatus(order.id, "완료")}>완료</button>
+                    <div className={`status-badge ${order.status === "대기중" ? "badge-waiting" : order.status === "제조중" ? "badge-making" : "badge-done"}`}>
+                      {order.status}
+                    </div>
+                  </div>
+                  <div className="order-items">
+                    {order.items && order.items.map((item) => (
+                      <div className="order-item" key={item.name}>
+                        <span>{item.name} × {item.qty}</span>
+                        <span>₩{(item.price * item.qty).toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {order.note && <div className="order-note">📝 요청사항: {order.note}</div>}
+                  <div className="order-bottom">
+                    <div className="order-total">합계 ₩{order.totalPrice?.toLocaleString()}</div>
+                    <div className="status-btns">
+                      <button className="btn-status btn-waiting" onClick={() => updateStatus(order.id, "대기중")}>대기중</button>
+                      <button className="btn-status btn-making" onClick={() => updateStatus(order.id, "제조중")}>제조중</button>
+                      <button className="btn-status btn-done" onClick={() => updateStatus(order.id, "완료")}>완료</button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))
+              }
+              {/* 페이징 */}
+              {todayOrders.length > PAGE_SIZE && (
+                <div className="pagination">
+                  <button
+                    className="page-btn"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                  >
+                    이전
+                  </button>
+                  {Array.from({ length: Math.ceil(todayOrders.length / PAGE_SIZE) }, (_, i) => (
+                    <button
+                      key={i + 1}
+                      className={`page-btn${currentPage === i + 1 ? " active" : ""}`}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button
+                    className="page-btn"
+                    disabled={currentPage === Math.ceil(todayOrders.length / PAGE_SIZE)}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                  >
+                    다음
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </>
       )}

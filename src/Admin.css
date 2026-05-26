@@ -114,3 +114,7 @@ body { background: var(--cream); font-family: 'Noto Sans KR', sans-serif; }
 .sales-order-num { font-size: 14px; font-weight: 600; color: var(--brown-deep); margin-bottom: 2px; }
 .sales-order-info { font-size: 11px; color: var(--text-light); margin-bottom: 2px; }
 .sales-order-price { font-size: 14px; font-weight: 600; color: var(--warm-gold); flex-shrink: 0; }
+.pagination { display: flex; justify-content: center; gap: 6px; margin-top: 16px; flex-wrap: wrap; }
+.page-btn { padding: 8px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text-mid); font-size: 13px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all .2s; }
+.page-btn.active { background: var(--brown-deep); color: #f5e6c8; border-color: var(--brown-deep); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
