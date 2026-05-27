@@ -96,6 +96,26 @@ export default function Admin() {
     }
   };
 
+  const handleStartDate = (e) => {
+    const val = e.target.value;
+    if (endDate && val > endDate) {
+      alert("시작일이 종료일보다 클 수 없어요!");
+      return;
+    }
+    setStartDate(val);
+    setDateMode("직접입력");
+  };
+
+  const handleEndDate = (e) => {
+    const val = e.target.value;
+    if (startDate && val < startDate) {
+      alert("종료일이 시작일보다 작을 수 없어요!");
+      return;
+    }
+    setEndDate(val);
+    setDateMode("직접입력");
+  };
+
   const filteredOrders = orders.filter((order) => {
     if (!order.createdAt) return false;
     const orderDate = order.createdAt.split(". ").slice(0, 3).join("-")
@@ -555,14 +575,14 @@ export default function Admin() {
                 <input
                   type="date"
                   value={startDate}
-                  onChange={(e) => { setStartDate(e.target.value); setDateMode("직접입력"); }}
+                  onChange={handleStartDate}
                   className="sales-date-input"
                 />
                 <span className="sales-date-sep">~</span>
                 <input
                   type="date"
                   value={endDate}
-                  onChange={(e) => { setEndDate(e.target.value); setDateMode("직접입력"); }}
+                  onChange={handleEndDate}
                   className="sales-date-input"
                 />
               </div>
